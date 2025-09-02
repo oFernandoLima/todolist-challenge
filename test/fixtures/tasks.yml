@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  priority: 1
+  completed: false
+  status: 1
+  task_list: one
+
+two:
+  title: MyString
+  priority: 1
+  completed: false
+  status: 1
+  task_list: two
