@@ -1,4 +1,12 @@
 Rails.application.routes.draw do
+  get "tasks/index"
+  get "tasks/show"
+  get "tasks/new"
+  get "tasks/edit"
+  get "task_lists/index"
+  get "task_lists/show"
+  get "task_lists/new"
+  get "task_lists/edit"
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
