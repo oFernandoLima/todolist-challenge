@@ -1,2 +1,18 @@
-<h1>Tasks#edit</h1>
-<p>Find me in app/views/tasks/edit.html.erb</p>
+<% content_for :title, "Editar Tarefa - #{@task_list.name}" %>
+
+<div class="container py-4" style="max-width: 800px;">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><%= link_to "Listas", task_lists_path %></li>
+      <li class="breadcrumb-item"><%= link_to @task_list.name, task_list_path(@task_list) %></li>
+      <li class="breadcrumb-item active" aria-current="page">Editar Tarefa</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="h4 mb-4">Editar Tarefa</h1>
+      <%= render "form", task: @task %>
+    </div>
+  </div>
+</div>

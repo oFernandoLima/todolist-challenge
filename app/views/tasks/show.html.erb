@@ -1,2 +1,61 @@
-<h1>Tasks#show</h1>
-<p>Find me in app/views/tasks/show.html.erb</p>
+<% content_for :title, "#{@task.title} - #{@task_list.name}" %>
+
+<div class="container py-4" style="max-width: 900px;">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><%= link_to "Listas", task_lists_path %></li>
+      <li class="breadcrumb-item"><%= link_to @task_list.name, task_list_path(@task_list), style: "color: #{@task_list.color}" %></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= @task.title %></li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <div class="card shadow-sm mb-3" style="border-left: 0.25rem solid <%= @task_list.color %>;">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <h1 class="h4 mb-2 <%= 'text-muted text-decoration-line-through' if @task.completed %>">
+          <%= @task.completed ? '✅' : '⏳' %> <%= @task.title %>
+        </h1>
+        <div class="d-flex gap-2">
+          <span class="badge rounded-pill text-bg-secondary">📋 <%= @task_list.name %></span>
+          <span class="badge <%= @task.done? ? 'text-bg-success' : @task.doing? ? 'text-bg-warning text-dark' : 'text-bg-light text-dark' %>"><%= @task.status %></span>
+          <span class="badge <%= @task.completed ? 'text-bg-success' : 'text-bg-warning text-dark' %>">
+            <%= @task.completed ? 'Concluída' : 'Pendente' %>
+          </span>
+        </div>
+      </div>
+
+      <dl class="row mb-0 mt-2">
+        <dt class="col-sm-3">Priority</dt>
+        <dd class="col-sm-9"><span class="badge text-bg-dark"><%= @task.priority.presence || '-' %></span></dd>
+
+        <dt class="col-sm-3">Created at</dt>
+        <dd class="col-sm-9"><%= l(@task.created_at, format: :short) rescue @task.created_at.to_s(:short) %></dd>
+
+        <dt class="col-sm-3">Updated at</dt>
+        <dd class="col-sm-9"><%= l(@task.updated_at, format: :short) rescue @task.updated_at.to_s(:short) %></dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="card shadow-sm">
+    <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
+      <%= link_to "↩️ Voltar para Lista", task_list_path(@task_list), class: "btn btn-secondary" %>
+      <%= link_to "✏️ Editar Tarefa", edit_task_list_task_path(@task_list, @task), class: "btn btn-primary" %>
+
+      <%# Toggle completed %>
+      <%= form_with model: [@task_list, @task], method: :patch, local: true do |form| %>
+        <%= form.hidden_field :completed, value: (!@task.completed).to_s %>
+        <%= form.submit (@task.completed ? "⏳ Marcar como Pendente" : "✅ Marcar como Concluída"),
+              class: (@task.completed ? "btn btn-warning text-dark" : "btn btn-success") %>
+      <% end %>
+
+      <%= button_to "🗑️ Excluir Tarefa", task_list_task_path(@task_list, @task),
+            method: :delete,
+            form: { data: { turbo_confirm: "Tem certeza que deseja excluir esta tarefa?" }, class: "d-inline" },
+            class: "btn btn-danger" %>
+    </div>
+  </div>
+</div>
