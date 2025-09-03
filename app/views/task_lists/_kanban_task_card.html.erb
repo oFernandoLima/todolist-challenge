@@ -1,0 +1,26 @@
+<div class="kanban-task-card priority-<%= task.priority || 3 %>" data-task-id="<%= task.id %>">
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <h4 class="h6 mb-0 flex-grow-1 lh-sm"><%= task.title %></h4>
+    <span class="badge text-bg-light ms-2">P<%= task.priority || 3 %></span>
+  </div>
+
+  <% if task.respond_to?(:description) && task.description.present? %>
+    <p class="mb-2 text-muted small"><%= truncate(task.description, length: 80) %></p>
+  <% end %>
+
+  <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+    <small class="text-muted">
+      <%# Ajuste/Remova se não houver associação com usuário %>
+      <%= task.respond_to?(:user) && task.user.present? ? "👤 #{task.user.try(:name) || task.user.try(:full_name)}" : "Criada em #{l(task.created_at, format: :short) rescue task.created_at.to_s(:short)}" %>
+    </small>
+
+    <div class="d-flex align-items-center gap-2">
+      <% if task.respond_to?(:due_date) && task.due_date.present? %>
+        <small class="<%= task.respond_to?(:overdue?) && task.overdue? ? 'text-danger' : 'text-muted' %>">📅 <%= task.due_date.strftime('%d/%m') %></small>
+      <% end %>
+      <% if defined?(@can_edit) && @can_edit %>
+        <%= link_to "✏️", edit_task_list_task_path(@task_list, task), class: "text-decoration-none opacity-75", title: "Editar tarefa" %>
+      <% end %>
+    </div>
+  </div>
+</div>

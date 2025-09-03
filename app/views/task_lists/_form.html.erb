@@ -1,0 +1,30 @@
+<%= form_with(model: task_list, local: true) do |f| %>
+  <% if task_list.errors.any? %>
+    <div class="alert alert-danger">
+      <h5 class="alert-heading mb-2">Please fix the following <%= pluralize(task_list.errors.count, "error") %>:</h5>
+      <ul class="mb-0">
+        <% task_list.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :name, "Name", class: "form-label" %>
+    <%= f.text_field :name, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :color, "Color", class: "form-label d-block" %>
+    <div class="d-flex align-items-center gap-3">
+      <%= f.color_field :color, class: "form-control form-control-color", style: "width:3rem; height:3rem; padding:.25rem;" %>
+      <small class="text-muted">Pick a color for this list</small>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit (task_list.persisted? ? "Update list" : "Create list"), class: "btn btn-primary" %>
+    <%= link_to "Cancel", (task_list.persisted? ? task_list_path(task_list) : task_lists_path), class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

@@ -1,2 +1,158 @@
-<h1>TaskLists#show</h1>
-<p>Find me in app/views/task_lists/show.html.erb</p>
+<% content_for :title, "#{@task_list.name} - Kanban" %>
+
+<div class="container py-4">
+  <!-- Header -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h4 mb-1 d-flex align-items-center gap-2">
+          <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background: <%= @task_list.color %>;"></span>
+          <%= @task_list.name %> - Kanban
+        </h1>
+        <p class="text-muted mb-0">
+          📊 Total: <%= @task_list.tasks.count %> |
+          ✅ Concluídas: <%= @task_list.tasks.where(completed: true).count %> |
+          ⏳ Pendentes: <%= @task_list.tasks.where(completed: false).count %>
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <%= link_to "📝 Voltar às Listas", task_lists_path(@task_list), class: "btn btn-secondary" %>
+        <%= link_to "✏️ Editar Lista", edit_task_list_path(@task_list), class: "btn btn-warning text-white" %>
+        <% if @can_edit %>
+          <%= link_to "➕ Nova Tarefa", new_task_list_task_path(@task_list), class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Board Kanban -->
+  <%# Agrupamento (garanta no controller ou aqui) %>
+  <% @todo_tasks  ||= @task_list.tasks.where(status: :todo).order(priority: :desc, created_at: :desc) %>
+  <% @doing_tasks ||= @task_list.tasks.where(status: :doing).order(priority: :desc, created_at: :desc) %>
+  <% @done_tasks  ||= @task_list.tasks.where(status: :done).order(priority: :desc, created_at: :desc) %>
+
+  <div class="row g-3">
+    <!-- TODO -->
+    <div class="col-12 col-md-4">
+      <div class="kanban-column card h-100 border-2 border-dashed" data-status="todo">
+        <div class="card-header bg-light text-center fw-semibold">📝 TODO (<%= @todo_tasks.count %>)</div>
+        <div class="card-body kanban-tasks d-flex flex-column gap-3">
+          <% @todo_tasks.each do |task| %>
+            <%= render "kanban_task_card", task: task %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOING -->
+    <div class="col-12 col-md-4">
+      <div class="kanban-column card h-100 border-2 border-dashed" data-status="doing">
+        <div class="card-header bg-warning bg-opacity-25 text-center fw-semibold">⚡ DOING (<%= @doing_tasks.count %>)</div>
+        <div class="card-body kanban-tasks d-flex flex-column gap-3">
+          <% @doing_tasks.each do |task| %>
+            <%= render "kanban_task_card", task: task %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div class="col-12 col-md-4">
+      <div class="kanban-column card h-100 border-2 border-dashed" data-status="done">
+        <div class="card-header bg-success bg-opacity-25 text-center fw-semibold">✅ DONE (<%= @done_tasks.count %>)</div>
+        <div class="card-body kanban-tasks d-flex flex-column gap-3">
+          <% @done_tasks.each do |task| %>
+            <%= render "kanban_task_card", task: task %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .border-dashed { border-style: dashed !important; }
+  .kanban-task-card {
+    background: #fff; border-radius: .5rem; padding: .9rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,.08); cursor: grab; transition: .2s;
+    border-left: 4px solid;
+  }
+  .kanban-task-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,.12); transform: translateY(-2px); }
+  .kanban-task-card.dragging { opacity: .6; cursor: grabbing; }
+  .kanban-column.drag-over { background-color: rgba(13,110,253,.06); border-color: #0d6efd !important; }
+  .priority-1 { border-left-color: #dc3545; }
+  .priority-2 { border-left-color: #fd7e14; }
+  .priority-3 { border-left-color: #ffc107; }
+  .priority-4 { border-left-color: #28a745; }
+  .priority-5 { border-left-color: #6c757d; }
+</style>
+
+<script>
+document.addEventListener('turbo:load', initKanban);
+document.addEventListener('DOMContentLoaded', initKanban);
+
+function initKanban() {
+  const cards = document.querySelectorAll('.kanban-task-card');
+  const columns = document.querySelectorAll('.kanban-column');
+  if (!cards.length || !columns.length) return;
+
+  cards.forEach(card => {
+    card.draggable = true;
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', card.dataset.taskId);
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
+
+  columns.forEach(column => {
+    column.addEventListener('dragover', e => { e.preventDefault(); column.classList.add('drag-over'); });
+    column.addEventListener('dragleave', () => column.classList.remove('drag-over'));
+    column.addEventListener('drop', e => {
+      e.preventDefault(); column.classList.remove('drag-over');
+      const taskId = e.dataTransfer.getData('text/plain');
+      const newStatus = column.dataset.status;
+
+      fetch("<%= update_task_status_task_list_path(@task_list) %>", {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ task_id: taskId, status: newStatus })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+          const container = column.querySelector('.kanban-tasks');
+          container.appendChild(taskCard);
+          updateCounts();
+          toast('Status atualizado!', 'success');
+        } else {
+          toast('Erro ao atualizar status', 'danger');
+        }
+      })
+      .catch(() => toast('Erro ao atualizar status', 'danger'));
+    });
+  });
+
+  function updateCounts() {
+    document.querySelectorAll('.kanban-column').forEach(col => {
+      const count = col.querySelectorAll('.kanban-task-card').length;
+      const head = col.querySelector('.card-header');
+      head.textContent = head.textContent.replace(/\(\d+\)/, `(${count})`);
+    });
+  }
+
+  function toast(msg, type) {
+    const el = document.createElement('div');
+    el.className = `toast align-items-center text-bg-${type} show position-fixed top-0 end-0 m-3`;
+    el.role = 'alert'; el.ariaLive = 'assertive'; el.ariaAtomic = 'true';
+    el.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+</script>
