@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  task_list: one
+  user: one
+  invited_by_id: 
+  permission_level: MyString
+  status: MyString
+  invited_at: 2025-09-03 20:21:02
+
+two:
+  task_list: two
+  user: two
+  invited_by_id: 
+  permission_level: MyString
+  status: MyString
+  invited_at: 2025-09-03 20:21:02
