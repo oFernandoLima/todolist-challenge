@@ -1,0 +1,138 @@
+<% content_for :title, "Convidar Colaborador - #{@task_list.name}" %>
+
+<div class="container py-5" style="max-width: 720px;">
+  <div class="text-center mb-4">
+    <h1 class="h4 mb-1">👥 Convidar Colaborador</h1>
+    <h2 class="h6 text-muted mb-0">
+      📋 <%= link_to @task_list.name, task_list_path(@task_list), style: "color: #{@task_list.color}; text-decoration: none;" %>
+    </h2>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <%= form_with model: [@task_list, @task_list_collaborator], url: task_list_task_list_collaborators_path(@task_list), local: true do |form| %>
+        <% if @task_list_collaborator.errors.any? %>
+          <div class="alert alert-danger">
+            <h6 class="mb-2">❌ <%= pluralize(@task_list_collaborator.errors.count, "erro") %> impediram o envio:</h6>
+            <ul class="mb-0">
+              <% @task_list_collaborator.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- Seleção de Usuário -->
+        <div class="mb-3">
+          <%= form.label :user_id, "👤 Selecionar Usuário", class: "form-label fw-semibold" %>
+          <% if defined?(@users) && @users.any? %>
+            <%= form.collection_select :user_id, @users, :id, :email,
+                  { prompt: "Escolha um usuário para convidar..." },
+                  { class: "form-select" } %>
+            <div class="form-text">Selecione um usuário existente OU informe um e-mail abaixo.</div>
+          <% else %>
+            <div class="alert alert-info mb-2">Não há usuários listados. Convide por e-mail abaixo.</div>
+          <% end %>
+        </div>
+
+        <!-- Convite por e-mail -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Ou convide por e-mail</label>
+          <%= text_field_tag "task_list_collaborator[email]", nil,
+                class: "form-control", placeholder: "usuario@exemplo.com" %>
+          <div class="form-text">Se informado, o sistema tentará encontrar o usuário por e-mail.</div>
+        </div>
+
+        <!-- Nível de Permissão -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">🔐 Nível de Permissão</label>
+
+          <div class="vstack gap-2">
+            <label class="border rounded p-3 d-flex gap-3 align-items-start permission-option">
+              <%= form.radio_button :permission_level, 'viewer',
+                    checked: @task_list_collaborator.permission_level.blank? || @task_list_collaborator.permission_level == 'viewer',
+                    class: "form-check-input mt-1" %>
+              <div>
+                <div class="fw-semibold">👁️ Visualizador</div>
+                <small class="text-muted">Pode visualizar a lista e tarefas, sem editar.</small>
+              </div>
+            </label>
+
+            <label class="border rounded p-3 d-flex gap-3 align-items-start permission-option">
+              <%= form.radio_button :permission_level, 'editor',
+                    checked: @task_list_collaborator.permission_level == 'editor',
+                    class: "form-check-input mt-1" %>
+              <div>
+                <div class="fw-semibold">✏️ Editor</div>
+                <small class="text-muted">Pode criar, editar e concluir tarefas, sem gerenciar colaboradores.</small>
+              </div>
+            </label>
+
+            <label class="border rounded p-3 d-flex gap-3 align-items-start permission-option">
+              <%= form.radio_button :permission_level, 'admin',
+                    checked: @task_list_collaborator.permission_level == 'admin',
+                    class: "form-check-input mt-1" %>
+              <div>
+                <div class="fw-semibold">👑 Administrador</div>
+                <small class="text-muted">Acesso total: tarefas e colaboradores.</small>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Sobre a Lista -->
+        <div class="bg-light rounded p-3 mb-4">
+          <h3 class="h6 mb-3">📊 Sobre esta Lista</h3>
+          <div class="row text-center g-3">
+            <div class="col-4">
+              <div class="fw-bold text-primary fs-5"><%= @task_list.tasks.count %></div>
+              <div class="text-muted small">Total</div>
+            </div>
+            <div class="col-4">
+              <div class="fw-bold text-success fs-5"><%= @task_list.tasks.where(completed: true).count %></div>
+              <div class="text-muted small">Concluídas</div>
+            </div>
+            <div class="col-4">
+              <div class="fw-bold text-purple fs-5"><%= @task_list.collaborators.count %></div>
+              <div class="text-muted small">Colaboradores</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="d-flex justify-content-center gap-2">
+          <%= link_to "🚫 Cancelar", task_list_task_list_collaborators_path(@task_list), class: "btn btn-outline-secondary" %>
+          <%= form.submit "📨 Enviar Convite", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('turbo:load', highlightPermission);
+document.addEventListener('DOMContentLoaded', highlightPermission);
+
+function highlightPermission() {
+  const options = document.querySelectorAll('.permission-option');
+  options.forEach(opt => {
+    const input = opt.querySelector('input[type="radio"]');
+    const sync = () => {
+      if (input.checked) {
+        opt.classList.add('border-primary','bg-light');
+      } else {
+        opt.classList.remove('border-primary','bg-light');
+      }
+    };
+    input.addEventListener('change', () => {
+      options.forEach(o => o.classList.remove('border-primary','bg-light'));
+      sync();
+    });
+    sync();
+    opt.addEventListener('click', (e) => {
+      if (e.target !== input) input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+}
+</script>

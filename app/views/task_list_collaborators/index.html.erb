@@ -1,0 +1,68 @@
+<% content_for :title, "Colaboradores - #{@task_list.name}" %>
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Colaboradores de <span class="fw-semibold"><%= @task_list.name %></span></h1>
+    <% if @task_list.can_manage_collaborators?(current_user) %>
+      <%= link_to "➕ Convidar", new_task_list_task_list_collaborator_path(@task_list), class: "btn btn-primary" %>
+    <% end %>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Usuário</th>
+            <th>Permissão</th>
+            <th>Status</th>
+            <th>Convidado por</th>
+            <th>Convidado em</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @collaborators.each do |c| %>
+            <tr>
+              <td><%= c.user.name.presence || c.user.email %></td>
+              <td>
+                <span class="badge <%= c.admin? ? 'text-bg-danger' : c.editor? ? 'text-bg-warning text-dark' : 'text-bg-secondary' %>">
+                  <%= c.permission_name %>
+                </span>
+              </td>
+              <td>
+                <span class="badge <%= c.accepted? ? 'text-bg-success' : c.pending? ? 'text-bg-info' : 'text-bg-secondary' %>">
+                  <%= c.status_name %>
+                </span>
+              </td>
+              <td><%= c.invited_by.name.presence || c.invited_by.email %></td>
+              <td><%= l(c.invited_at, format: :short) rescue c.invited_at.to_s(:short) %></td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-2">
+                  <% if current_user.id == c.user_id && c.pending? %>
+                    <%= button_to "Aceitar", accept_task_list_task_list_collaborator_path(@task_list, c), method: :patch, class: "btn btn-sm btn-success" %>
+                    <%= button_to "Recusar", decline_task_list_task_list_collaborator_path(@task_list, c), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+                  <% end %>
+
+                  <% if @task_list.can_manage_collaborators?(current_user) %>
+                    <%= form_with model: [@task_list, c], method: :patch, class: "d-flex gap-2 align-items-center", local: true do |f| %>
+                      <%= f.select :permission_level, [["Visualizador","viewer"],["Editor","editor"],["Administrador","admin"]], {}, class: "form-select form-select-sm" %>
+                      <%= f.submit "Atualizar", class: "btn btn-sm btn-outline-primary" %>
+                    <% end %>
+                    <%= button_to "Remover", task_list_task_list_collaborator_path(@task_list, c),
+                          method: :delete,
+                          form: { data: { turbo_confirm: "Remover colaborador?" }, class: "d-inline" },
+                          class: "btn btn-sm btn-danger" %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @collaborators.blank? %>
+            <tr><td colspan="6" class="text-center text-muted py-4">Nenhum colaborador ainda.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -9,11 +9,15 @@
     </div>
   </div>
 
-  <% if @task_lists.any? %>
-    <div class="row g-4">
+  <% owned_present = @task_lists.present? %>
+  <% collab_present = @collaborated_task_lists.present? %>
+
+  <% if owned_present %>
+    <!-- Minhas listas -->
+    <div class="row g-4 mb-4">
       <% @task_lists.each do |task_list| %>
         <% total = task_list.tasks.size %>
-        <% done_count = task_list.tasks.select { |t| t.done? }.size %>
+        <% done_count = task_list.tasks.select { |t| t.done? }.size rescue task_list.tasks.count { |t| t.respond_to?(:done?) ? t.done? : t.try(:completed) } %>
         <% pending_count = total - done_count %>
         <% completion = total.zero? ? 0 : ((done_count * 100.0) / total).round %>
 
@@ -28,12 +32,6 @@
                 <span class="badge text-bg-secondary"><%= total %> tarefas</span>
               </div>
 
-              <!-- Cor da lista -->
-              <!-- <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="rounded-circle d-inline-block" style="width: 14px; height: 14px; background-color: <%= task_list.color %>;"></span>
-                <code class="text-muted"><%= task_list.color %></code>
-              </div>  -->
-
               <!-- Estatísticas -->
               <div class="d-flex flex-wrap gap-2 my-3">
                 <span class="badge text-bg-success">✅ <%= done_count %> concluídas</span>
@@ -41,16 +39,14 @@
               </div>
 
               <!-- Barra de Progresso -->
-              
-                <div class="progress mb-2" role="progressbar" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
-                  <div class="progress-bar bg-success" style="width: <%= completion %>%;">
-                    <%= completion %>%
-                  </div>
+              <div class="progress mb-2" role="progressbar" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-success" style="width: <%= completion %>%;">
+                  <%= completion %>%
                 </div>
-                <div class="text-center text-muted small">
-                  <%= completion %>% concluída
-                </div>
-              
+              </div>
+              <div class="text-center text-muted small">
+                <%= completion %>% concluída
+              </div>
             </div>
 
             <!-- Ações -->
@@ -68,7 +64,57 @@
         </div>
       <% end %>
     </div>
-  <% else %>
+  <% end %>
+
+  <% if collab_present %>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5 mb-0">🤝 Listas em que colaboro</h2>
+    </div>
+
+    <div class="row g-4">
+      <% @collaborated_task_lists.each do |task_list| %>
+        <% total = task_list.tasks.size %>
+        <% done_count = task_list.tasks.select { |t| t.done? }.size rescue task_list.tasks.count { |t| t.respond_to?(:done?) ? t.done? : t.try(:completed) } %>
+        <% pending_count = total - done_count %>
+        <% completion = total.zero? ? 0 : ((done_count * 100.0) / total).round %>
+
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card h-100 shadow-sm" style="border-left: 0.25rem solid <%= task_list.color || '#6f42c1' %>;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h3 class="h5 mb-0">
+                  <%= link_to task_list.name, task_list_path(task_list), class: "text-decoration-none text-dark" %>
+                </h3>
+                <span class="badge text-bg-secondary"><%= total %> tarefas</span>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 my-3">
+                <span class="badge text-bg-success">✅ <%= done_count %> concluídas</span>
+                <span class="badge text-bg-warning text-white">⏳ <%= pending_count %> pendentes</span>
+              </div>
+
+              <div class="progress mb-2" role="progressbar" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-success" style="width: <%= completion %>%;">
+                  <%= completion %>%
+                </div>
+              </div>
+              <div class="text-center text-muted small">
+                <%= completion %>% concluída
+              </div>
+            </div>
+
+            <div class="card-footer bg-white border-0 pt-0 pb-3">
+              <div class="d-flex justify-content-end gap-2">
+                <%= link_to "👁️ Ver", task_list_path(task_list), class: "btn btn-sm btn-info text-white" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% unless owned_present || collab_present %>
     <!-- Estado vazio -->
     <div class="bg-white border rounded-3 shadow-sm p-5 text-center">
       <div class="display-4 mb-3">📋</div>

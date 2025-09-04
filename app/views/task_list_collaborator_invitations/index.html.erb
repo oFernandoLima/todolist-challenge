@@ -1,0 +1,61 @@
+<% content_for :title, "Convites de Colaboração" %>
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Convites de Colaboração</h1>
+    <%= link_to "Ir para Minhas Listas", task_lists_path, class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Lista</th>
+            <th>Permissão</th>
+            <th>Convidado por</th>
+            <th>Enviado em</th>
+            <th>Status</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @invitations.each do |inv| %>
+            <tr>
+              <td>
+                <%= link_to inv.task_list.name, task_list_path(inv.task_list), class: "text-decoration-none" %>
+              </td>
+              <td>
+                <span class="badge <%= inv.admin? ? 'text-bg-danger' : inv.editor? ? 'text-bg-warning text-dark' : 'text-bg-secondary' %>">
+                  <%= inv.permission_name %>
+                </span>
+              </td>
+              <td><%= inv.invited_by.name.presence || inv.invited_by.email %></td>
+              <td><%= l(inv.invited_at, format: :short) rescue inv.invited_at.to_s(:short) %></td>
+              <td>
+                <span class="badge <%= inv.accepted? ? 'text-bg-success' : inv.pending? ? 'text-bg-info' : 'text-bg-secondary' %>">
+                  <%= inv.status_name %>
+                </span>
+              </td>
+              <td class="text-end">
+                <% if inv.pending? %>
+                  <div class="btn-group btn-group-sm">
+                    <%= button_to "Aceitar", accept_collaboration_invite_path(inv), method: :patch, class: "btn btn-success" %>
+                    <%= button_to "Recusar", decline_collaboration_invite_path(inv), method: :patch, class: "btn btn-outline-secondary" %>
+                  </div>
+                <% else %>
+                  <span class="text-muted small">Nenhuma ação</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @invitations.blank? %>
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">Você não possui convites.</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

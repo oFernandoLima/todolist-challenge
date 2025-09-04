@@ -30,7 +30,7 @@
             (user_signed_in? ? authenticated_root_path : unauthenticated_root_path),
             class: "navbar-brand fw-bold" %>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
           <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -38,10 +38,18 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <% if user_signed_in? %>
               <li class="nav-item">
-                <%= link_to "My Lists", task_lists_path, class: "nav-link #{'active' if current_page?(task_lists_path)}" %>
+                <%= link_to "Minhas Listas", task_lists_path, class: "nav-link #{'active' if current_page?(task_lists_path)}" %>
               </li>
               <li class="nav-item">
-                <%= link_to "New List", new_task_list_path, class: "nav-link #{'active' if current_page?(new_task_list_path)}" %>
+                <%= link_to "Nova Lista", new_task_list_path, class: "nav-link #{'active' if current_page?(new_task_list_path)}" %>
+              </li>
+              <li class="nav-item">
+                <%= link_to collaboration_invites_path, class: "nav-link #{'active' if current_page?(collaboration_invites_path)}" do %>
+                  Convites
+                  <% if (@pending_invites_count || 0) > 0 %>
+                    <span class="badge rounded-pill text-bg-warning ms-1"><%= @pending_invites_count %></span>
+                  <% end %>
+                <% end %>
               </li>
             <% end %>
           </ul>
