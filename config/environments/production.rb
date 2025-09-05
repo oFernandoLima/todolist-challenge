@@ -64,6 +64,7 @@ Rails.application.configure do
     protocol: "https"
   }
   config.hosts << ENV.fetch("APP_HOST", "localhost")
+  config.hosts << /.*\.onrender\.com/
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
