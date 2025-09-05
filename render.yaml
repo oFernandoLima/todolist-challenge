@@ -20,8 +20,6 @@ services:
         fromDatabase:
           name: todolist-db
           property: connectionString
-    postDeploy:
-      - bundle exec rails db:migrate
 
 databases:
   - name: todolist-db
