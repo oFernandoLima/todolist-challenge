@@ -3,17 +3,8 @@ class TaskListsController < ApplicationController
   before_action :set_task_list, only: %i[show edit update destroy]
 
   def index
-    @task_lists = current_user.task_lists.includes(:tasks).order(created_at: :desc)
-
-    @collaborated_task_lists =
-      if current_user.respond_to?(:collaborated_task_lists)
-        current_user.collaborated_task_lists.includes(:tasks).order("task_lists.created_at DESC")
-      else
-        TaskList.joins(:task_list_collaborators)
-                .where(task_list_collaborators: { user_id: current_user.id, status: "accepted" })
-                .includes(:tasks)
-                .order("task_lists.created_at DESC")
-      end
+    @task_lists = current_user.task_lists.includes(:tasks)
+    @collaborated_task_lists = current_user.collaborated_task_lists.includes(:tasks)
   end
 
   def show

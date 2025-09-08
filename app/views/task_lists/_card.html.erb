@@ -1,0 +1,49 @@
+<%# Locals: task_list, collaborated %>
+<% total         = task_list.respond_to?(:total_tasks_count) ? task_list.total_tasks_count : task_list.tasks.size %>
+<% done_count    = task_list.respond_to?(:done_tasks_count) ? task_list.done_tasks_count : (task_list.tasks.respond_to?(:done) ? task_list.tasks.done.count : task_list.tasks.where(status: :done).count) %>
+<% pending_count = total - done_count %>
+<% completion    = total.zero? ? 0 : ((done_count * 100.0) / total).round %>
+
+<div class="card h-100 shadow-sm task-list-card" style="border-left:0.25rem solid <%= task_list.color || '#0d6efd' %>;">
+  <div class="card-body pb-3">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <h3 class="h5 mb-0">
+        <%= link_to task_list.name, task_list_path(task_list), class: "text-decoration-none text-dark" %>
+      </h3>
+      <span class="badge text-bg-secondary"><%= total %> tarefas</span>
+    </div>
+
+    <% if task_list.description.present? %>
+      <p class="text-muted small mb-2" style="max-height:4.2em; overflow:hidden;">
+        <%= truncate(strip_tags(task_list.description), length: 120) %>
+      </p>
+    <% else %>
+      <p class="text-muted small mb-2 fst-italic">Sem descrição.</p>
+    <% end %>
+
+    <div class="d-flex flex-wrap gap-2 my-2">
+      <span class="badge text-bg-success">✅ <%= done_count %></span>
+      <span class="badge text-bg-warning text-white">⏳ <%= pending_count %></span>
+    </div>
+
+    <div class="progress mb-2" style="height:.6rem;" role="progressbar" aria-label="Progresso de conclusão" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar bg-success" style="width:<%= completion %>%;" aria-valuenow="<%= completion %>" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="text-center text-muted small">
+      <%= completion %>% concluída
+    </div>
+  </div>
+
+  <div class="card-footer bg-white border-0 pt-0 pb-3">
+    <div class="d-flex justify-content-end flex-wrap gap-2">
+      <%= link_to "👁 Ver", task_list_path(task_list), class: "btn btn-sm btn-outline-primary" %>
+      <% unless collaborated %>
+        <%= link_to "✏️ Editar", edit_task_list_path(task_list), class: "btn btn-sm btn-warning text-white" %>
+        <%= button_to "🗑 Excluir", task_list_path(task_list),
+              method: :delete,
+              form: { data: { turbo_confirm: "Tem certeza?" }, class: "d-inline" },
+              class: "btn btn-sm btn-danger" %>
+      <% end %>
+    </div>
+  </div>
+</div>
