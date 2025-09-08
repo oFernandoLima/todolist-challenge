@@ -7,7 +7,7 @@ class TaskList < ApplicationRecord
 
   validates :name, presence: true
   validates :color, presence: true
-  validates :description, length: { maximum: 10_000 }, allow_blank: true
+  validates :description, presence: true, length: { maximum: 10_000 }
 
   # Permissões
   def owner?(u) = u && u.id == user_id
@@ -34,5 +34,27 @@ class TaskList < ApplicationRecord
   def can_manage_collaborators?(u)
     return true if owner?(u)
     collaborator_record_for(u)&.can_manage_collaborators? || false
+  end
+
+  def total_tasks_count
+    tasks.count
+  end
+
+  def done_tasks_count
+    tasks.respond_to?(:done) ? tasks.done.count : tasks.where(status: :done).count
+  end
+
+  def pending_tasks_count
+    total_tasks_count - done_tasks_count
+  end
+
+  def completion_percentage
+    return 0 if total_tasks_count.zero?
+    ((done_tasks_count.to_f / total_tasks_count) * 100).round
+  end
+
+  def collaborators_count
+    return 0 unless respond_to?(:collaborators)
+    collaborators.count
   end
 end
