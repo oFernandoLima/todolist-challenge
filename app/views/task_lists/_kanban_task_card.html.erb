@@ -1,25 +1,78 @@
-<div class="kanban-task-card priority-<%= task.priority || 3 %>" data-task-id="<%= task.id %>">
-  <div class="d-flex justify-content-between align-items-start mb-2">
-    <h4 class="h6 mb-0 flex-grow-1 lh-sm"><%= task.title %></h4>
-    <span class="badge text-bg-light ms-2">P<%= task.priority || 3 %></span>
+<% task_list ||= @task_list %>
+<% can_edit  =  defined?(can_edit) ? can_edit : (defined?(@can_edit) && @can_edit) %>
+
+<% priority = task.priority.to_i.nonzero? || 3 %>
+<% priority_label = "P#{priority}" %>
+<% priority_title = {
+  1 => "Crítica",
+  2 => "Alta",
+  3 => "Média",
+  4 => "Baixa",
+  5 => "Muito Baixa"
+}[priority] || "Prioridade" %>
+
+<% status_text = task.respond_to?(:status) ? I18n.t("activerecord.enums.task.status.#{task.status}", default: task.status.to_s.humanize) : nil %>
+
+<div class="kanban-task-card priority-<%= priority %> shadow-sm"
+     data-task-id="<%= task.id %>"
+     draggable="true"
+     aria-label="Tarefa: <%= task.title %> (<%= priority_title %>)">
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-start">
+    <div class="pe-2">
+      <h4 class="h6 mb-1 lh-sm fw-semibold text-truncate" title="<%= task.title %>">
+        <%= task.title %>
+      </h4>
+      <% if status_text %>
+        <span class="badge rounded-pill bg-light text-muted border small fw-normal"><%= status_text %></span>
+      <% end %>
+    </div>
+
+    <span class="badge rounded-pill bg-priority-<%= priority %>" title="Prioridade: <%= priority_title %>">
+      <%= priority_label %>
+    </span>
   </div>
 
-  <% if task.respond_to?(:description) && task.description.present? %>
-    <p class="mb-2 text-muted small"><%= truncate(task.description, length: 80) %></p>
+  <!-- Descrição -->
+  <% if task.respond_to?(:description) %>
+    <p class="mb-2 mt-2 text-muted small kanban-task-description"
+       title="<%= strip_tags(task.description.to_s) %>">
+      <%= truncate(strip_tags(task.description.to_s), length: 110) %>
+    </p>
   <% end %>
 
-  <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-    <small class="text-muted">
-      <%# Ajuste/Remova se não houver associação com usuário %>
-      <%= task.respond_to?(:user) && task.user.present? ? "👤 #{task.user.try(:name) || task.user.try(:full_name)}" : "Criada em #{l(task.created_at, format: :short) rescue task.created_at.to_s(:short)}" %>
-    </small>
-
-    <div class="d-flex align-items-center gap-2">
+  <!-- Metadados / Ações -->
+  <div class="d-flex justify-content-between align-items-end mt-auto pt-2 border-top small">
+    <div class="text-muted d-flex flex-column gap-1">
+      <span>
+        <% if task.respond_to?(:user) && task.user.present? %>
+          👤 <%= task.user.try(:name) || task.user.try(:full_name) || "Usuário" %>
+        <% else %>
+          Criada em <%= l(task.created_at.to_date) %>
+        <% end %>
+      </span>
       <% if task.respond_to?(:due_date) && task.due_date.present? %>
-        <small class="<%= task.respond_to?(:overdue?) && task.overdue? ? 'text-danger' : 'text-muted' %>">📅 <%= task.due_date.strftime('%d/%m') %></small>
+        <span class="<%= (task.respond_to?(:overdue?) && task.overdue?) ? 'text-danger' : 'text-muted' %>">
+          📅 <%= task.due_date.strftime('%d/%m/%Y') %>
+        </span>
       <% end %>
-      <% if defined?(@can_edit) && @can_edit %>
-        <%= link_to "✏️", edit_task_list_task_path(@task_list, task), class: "text-decoration-none opacity-75", title: "Editar tarefa" %>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 ms-2">
+      <% if can_edit %>
+        <%= link_to edit_task_list_task_path(task_list, task),
+            class: "btn btn-sm btn-light border-0 px-2 py-1 text-secondary hover-icon",
+            title: "Editar tarefa", data: { turbo_frame: "_top" } do %>
+          ✏️
+        <% end %>
+        <%= button_to task_list_task_path(task_list, task),
+              method: :delete,
+              form: { data: { turbo_confirm: 'Excluir esta tarefa?' }, class: 'd-inline' },
+              class: "btn btn-sm btn-light border-0 px-2 py-1 text-danger hover-icon",
+              title: "Excluir tarefa" do %>
+          🗑
+        <% end %>
       <% end %>
     </div>
   </div>

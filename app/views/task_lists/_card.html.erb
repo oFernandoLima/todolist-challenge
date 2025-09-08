@@ -1,4 +1,3 @@
-<%# Locals: task_list, collaborated %>
 <% total         = task_list.respond_to?(:total_tasks_count) ? task_list.total_tasks_count : task_list.tasks.size %>
 <% done_count    = task_list.respond_to?(:done_tasks_count) ? task_list.done_tasks_count : (task_list.tasks.respond_to?(:done) ? task_list.tasks.done.count : task_list.tasks.where(status: :done).count) %>
 <% pending_count = total - done_count %>

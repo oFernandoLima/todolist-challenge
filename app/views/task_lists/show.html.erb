@@ -15,7 +15,7 @@
         <div class="card-header bg-light text-center fw-semibold">📝 TODO (<%= @todo_tasks.count %>)</div>
         <div class="card-body kanban-tasks d-flex flex-column gap-3">
           <% @todo_tasks.each do |task| %>
-            <%= render "kanban_task_card", task: task %>
+            <%= render "task_lists/kanban_task_card", task: task, task_list: @task_list, can_edit: @can_edit %>
           <% end %>
         </div>
       </div>
@@ -27,7 +27,7 @@
         <div class="card-header bg-warning bg-opacity-25 text-center fw-semibold">⚡ DOING (<%= @doing_tasks.count %>)</div>
         <div class="card-body kanban-tasks d-flex flex-column gap-3">
           <% @doing_tasks.each do |task| %>
-            <%= render "kanban_task_card", task: task %>
+            <%= render "task_lists/kanban_task_card", task: task, task_list: @task_list, can_edit: @can_edit %>
           <% end %>
         </div>
       </div>
@@ -39,7 +39,7 @@
         <div class="card-header bg-success bg-opacity-25 text-center fw-semibold">✅ DONE (<%= @done_tasks.count %>)</div>
         <div class="card-body kanban-tasks d-flex flex-column gap-3">
           <% @done_tasks.each do |task| %>
-            <%= render "kanban_task_card", task: task %>
+            <%= render "task_lists/kanban_task_card", task: task, task_list: @task_list, can_edit: @can_edit %>
           <% end %>
         </div>
       </div>
