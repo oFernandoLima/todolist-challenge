@@ -5,17 +5,31 @@
   <div class="card shadow p-4 mx-auto" style="max-width: 400px;">
     <h2 class="text-center mb-4">Entrar</h2>
 
-    <%= form_with(model: resource, url: user_session_path, local: true) do |f| %>
-      <%= render "devise/shared/error_messages", resource: resource %>
+    <% auth_error = flash.now[:alert] || flash[:alert] %>
 
+    <%= form_with(model: resource, url: user_session_path, local: true) do |f| %>
       <div class="mb-3">
         <%= f.label :email, "Email", class: "form-label" %>
-        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+        <%= f.email_field :email,
+              autofocus: true,
+              autocomplete: "email",
+              class: "form-control #{'is-invalid' if resource.errors[:email].present?}" %>
+        <% resource.errors[:email].each do |msg| %>
+          <div class="invalid-feedback d-block"><%= msg %></div>
+        <% end %>
       </div>
 
       <div class="mb-3">
         <%= f.label :password, "Senha", class: "form-label" %>
-        <%= f.password_field :password, autocomplete: "current-password", class: "form-control" %>
+        <%= f.password_field :password,
+              autocomplete: "current-password",
+              class: "form-control #{'is-invalid' if resource.errors[:password].present? || auth_error.present?}" %>
+        <% resource.errors[:password].each do |msg| %>
+          <div class="invalid-feedback d-block"><%= msg %></div>
+        <% end %>
+        <% if auth_error.present? && resource.errors[:password].blank? && resource.errors[:email].blank? %>
+          <div class="invalid-feedback d-block"><%= auth_error %></div>
+        <% end %>
       </div>
 
       <% if devise_mapping.rememberable? %>
