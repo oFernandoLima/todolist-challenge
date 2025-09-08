@@ -1,0 +1,43 @@
+pt-BR:
+  activerecord:
+    models:
+      user: Usuário
+      task_list: Lista
+    attributes:
+      user:
+        name: Nome
+        email: Email
+        password: Senha
+        password_confirmation: Confirmação de senha
+      task_list:
+        title: Título
+        description: Descrição
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "não pode ficar em branco"
+      invalid: "é inválido"
+      taken: "já está em uso"
+      too_short: "é muito curto (mínimo %{count} caracteres)"
+      too_long: "é muito longo (máximo %{count} caracteres)"
+      confirmation: "não confere"
+      present: "deve estar em branco"
+      not_a_number: "não é um número"
+      inclusion: "não está incluído na lista"
+      exclusion: "não está disponível"
+      greater_than: "deve ser maior que %{count}"
+      greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+      less_than: "deve ser menor que %{count}"
+      less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+      other_than: "deve ser diferente de %{count}"
+      already_confirmed: "já foi confirmado"
+      not_found: "não encontrado"
+      required: "é obrigatório"
+  datetime:
+    distance_in_words:
+      about_x_hours:
+        one: "cerca de 1 hora"
+        other: "cerca de %{count} horas"
+  devise:
+    failure:
+      invalid: "Email ou senha inválidos."

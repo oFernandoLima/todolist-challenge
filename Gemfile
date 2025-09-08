@@ -62,6 +62,11 @@ group :test do
   gem "selenium-webdriver"
 end
 
+# User authentication solution
 gem "devise", "~> 4.9"
 
+# Environment variable management for development and production
 gem "dotenv-rails", "~> 3.1"
+
+# Internationalization and localization support
+gem "rails-i18n"

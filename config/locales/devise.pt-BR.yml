@@ -1,0 +1,56 @@
+pt-BR:
+  devise:
+    confirmations:
+      confirmed: "Seu email foi confirmado."
+      send_instructions: "Você receberá instruções para confirmar seu email em alguns minutos."
+      send_paranoid_instructions: "Se seu email existir em nossa base, enviaremos instruções."
+    failure:
+      already_authenticated: "Você já está autenticado."
+      inactive: "Sua conta ainda não foi ativada."
+      invalid: "Email ou senha inválidos."
+      locked: "Sua conta está bloqueada."
+      last_attempt: "Última tentativa antes de bloquear sua conta."
+      not_found_in_database: "Email ou senha inválidos."
+      timeout: "Sua sessão expirou. Entre novamente."
+      unauthenticated: "Você precisa entrar ou se cadastrar."
+      unconfirmed: "Confirme seu email antes de continuar."
+    mailer:
+      confirmation_instructions:
+        subject: "Instruções de confirmação"
+      reset_password_instructions:
+        subject: "Instruções para redefinir a senha"
+      unlock_instructions:
+        subject: "Instruções de desbloqueio"
+    omniauth_callbacks:
+      failure: "Não foi possível autenticar via %{kind}: \"%{reason}\"."
+      success: "Autenticado com sucesso via %{kind}."
+    passwords:
+      no_token: "Link inválido ou expirado."
+      send_instructions: "Você receberá um email com instruções de redefinição em alguns minutos."
+      send_paranoid_instructions: "Se o email existir, enviaremos instruções."
+      updated: "Senha alterada com sucesso. Você está autenticado."
+      updated_not_active: "Senha alterada com sucesso."
+    registrations:
+      signed_up: "Cadastro realizado com sucesso."
+      signed_up_but_inactive: "Cadastro realizado. Ative a conta para continuar."
+      signed_up_but_locked: "Cadastro realizado, mas a conta está bloqueada."
+      signed_up_but_unconfirmed: "Um email de confirmação foi enviado."
+      update_needs_confirmation: "Atualizado. Confirme o novo email."
+      updated: "Conta atualizada."
+      destroyed: "Sua conta foi excluída. Sentiremos sua falta!"
+    sessions:
+      signed_in: "Entrou com sucesso."
+      signed_out: "Saiu com sucesso."
+      already_signed_out: "Sessão já finalizada."
+    unlocks:
+      send_instructions: "Você receberá instruções para desbloquear a conta."
+      unlocked: "Sua conta foi desbloqueada."
+  helpers:
+    submit:
+      user:
+        create: "Cadastrar"
+        update: "Atualizar"
+  views:
+    pagination:
+      previous: "Anterior"
+      next: "Próximo"
