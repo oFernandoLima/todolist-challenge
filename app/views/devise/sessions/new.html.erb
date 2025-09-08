@@ -1,7 +1,8 @@
 <% content_for :title, "Entrar" %>
+<% content_for :center_screen, true %>
 
-<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-  <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+<div class="container">
+  <div class="card shadow p-4 mx-auto" style="max-width: 400px;">
     <h2 class="text-center mb-4">Entrar</h2>
 
     <%= form_with(model: resource, url: user_session_path, local: true) do |f| %>

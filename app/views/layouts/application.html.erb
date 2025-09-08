@@ -37,7 +37,7 @@
       </div>
     <% end %>
 
-    <main class="flex-grow-1 py-4">
+    <main class="flex-grow-1 py-4 <%= content_for?(:center_screen) ? 'd-flex align-items-center justify-content-center' : '' %>">
       <%= yield %>
     </main>
 

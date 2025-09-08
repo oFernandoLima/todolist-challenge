@@ -4,18 +4,16 @@
         (user_signed_in? ? authenticated_root_path : unauthenticated_root_path),
         class: "navbar-brand fw-bold" %>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <div id="mainNavbar"
+         class="collapse navbar-collapse flex-column flex-lg-row align-items-end align-items-lg-center">
+      <ul class="navbar-nav flex-column flex-lg-row align-items-end align-items-lg-center mb-2 mb-lg-0 me-lg-3">
         <% if user_signed_in? %>
           <li class="nav-item">
             <%= link_to "Minhas Listas", task_lists_path, class: "nav-link #{'active' if current_page?(task_lists_path)}" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "Nova Lista", new_task_list_path, class: "nav-link #{'active' if current_page?(new_task_list_path)}" %>
           </li>
           <li class="nav-item">
             <%= link_to collaboration_invites_path, class: "nav-link #{'active' if current_page?(collaboration_invites_path)}" do %>
@@ -28,15 +26,15 @@
         <% end %>
       </ul>
 
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex flex-lg-row justify-content-end align-items-center gap-2 mt-2 mt-lg-0 ms-lg-auto">
         <% if user_signed_in? %>
-          <span class="text-white-50 small">Olá, <%= current_user.name.presence || 'User' %></span>
+          <span class="text-white small">Olá, <%= current_user.name.presence || 'User' %></span>
           <%= button_to "Sair", destroy_user_session_path, method: :delete,
                 class: "btn btn-outline-light btn-sm",
                 form: { class: "d-inline" } %>
         <% else %>
-          <%= link_to "Entrar", new_user_session_path, class: "btn btn-outline-light btn-sm" %>
-          <%= link_to "Registrar", new_user_registration_path, class: "btn btn-light btn-sm" %>
+          <%= link_to "Entrar", new_user_session_path, class: "btn btn-outline-light btn-sm text-end" %>
+          <%= link_to "Registrar", new_user_registration_path, class: "btn btn-light btn-sm text-end" %>
         <% end %>
       </div>
     </div>
