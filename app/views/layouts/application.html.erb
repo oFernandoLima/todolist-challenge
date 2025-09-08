@@ -26,18 +26,9 @@
   <body class="bg-light d-flex flex-column min-vh-100">
     <%= render "shared/navbar", pending_invites_count: @pending_invites_count %>
 
-    <% flash.each do |key, value| %>
-      <% next if value.blank? %>
-      <% bs = { notice: "success", alert: "danger", error: "danger", info: "info" }[key.to_sym] || "secondary" %>
-      <div class="alert alert-<%= bs %> alert-dismissible fade show rounded-0 mb-0" role="alert">
-        <div class="container">
-          <%= value %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      </div>
-    <% end %>
+    <%= render "shared/flash_toasts" %>
 
-    <main class="flex-grow-1 py-4 <%= content_for?(:center_screen) ? 'd-flex align-items-center justify-content-center' : '' %>">
+    <main class="flex-grow-1 <%= content_for?(:center_screen) ? 'd-flex align-items-center justify-content-center' : 'py-4' %>">
       <%= yield %>
     </main>
 

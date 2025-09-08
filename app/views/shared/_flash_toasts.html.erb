@@ -1,0 +1,42 @@
+<% return if flash.blank? %>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1080;">
+  <% flash.each do |key, value| %>
+    <% next if value.blank? %>
+    <% bs = {
+      notice: "success",
+      alert: "danger",
+      error: "danger",
+      info: "info",
+      warning: "warning"
+    }[key.to_sym] || "secondary" %>
+    <div class="toast align-items-center text-bg-<%= bs %> border-0 mb-2"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true"
+         data-bs-autohide="true"
+         data-bs-delay="5000">
+      <div class="d-flex">
+        <div class="toast-body">
+          <%= value %>
+        </div>
+        <button type="button"
+                class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast"
+                aria-label="Fechar"></button>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  (function() {
+    function showToasts() {
+      document.querySelectorAll(".toast").forEach(function(el){
+        bootstrap.Toast.getOrCreateInstance(el).show();
+      });
+    }
+    document.addEventListener("turbo:load", showToasts);
+    document.addEventListener("turbo:render", showToasts);
+    if (!window.Turbo) document.addEventListener("DOMContentLoaded", showToasts);
+  })();
+</script>
