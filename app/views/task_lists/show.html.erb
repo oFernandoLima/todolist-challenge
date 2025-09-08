@@ -1,31 +1,8 @@
 <% content_for :title, "#{@task_list.name} - Kanban" %>
 
 <div class="container py-4">
-  <!-- Header -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body d-flex justify-content-between align-items-center">
-      <div>
-        <h1 class="h4 mb-1 d-flex align-items-center gap-2">
-          <span class="d-inline-block rounded-circle" style="width: 20px; height: 20px; background: <%= @task_list.color %>;"></span>
-          <%= @task_list.name %> - Kanban
-        </h1>
-        <p class="text-muted mb-0">
-          📊 Total: <%= @task_list.tasks.count %> |
-          ✅ Concluídas: <%= @task_list.tasks.where(completed: true).count %> |
-          ⏳ Pendentes: <%= @task_list.tasks.where(completed: false).count %>
-        </p>
-      </div>
-      <div class="d-flex gap-2">
-        <%= link_to "Colaboradores", task_list_task_list_collaborators_path(@task_list), class: "btn btn-outline-secondary" %>
-        <%= link_to "📝 Lista", task_list_path(@task_list), class: "btn btn-secondary" %>
-        <% if @can_edit %>
-          <%= link_to "➕ Nova Tarefa", new_task_list_task_path(@task_list), class: "btn btn-primary" %>
-        <% end %>
-      </div>
-    </div>
-  </div>
+  <%= render "task_lists/header", task_list: @task_list, can_edit: @can_edit %>
 
-  <!-- Board Kanban -->
   <%# Agrupamento (garanta no controller ou aqui) %>
   <% @todo_tasks  ||= @task_list.tasks.where(status: :todo).order(priority: :desc, created_at: :desc) %>
   <% @doing_tasks ||= @task_list.tasks.where(status: :doing).order(priority: :desc, created_at: :desc) %>

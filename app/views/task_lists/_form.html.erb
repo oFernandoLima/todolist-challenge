@@ -17,7 +17,12 @@
 
   <div class="mb-3">
     <%= f.label :description, "Descrição", class: "form-label" %>
-    <%= f.text_area :description, rows: 4, class: "form-control", placeholder: "Opcional" %>
+    <%= f.text_area :description, rows: 4,
+          class: "form-control #{'is-invalid' if @task_list.errors[:description].present?}",
+          required: true %>
+    <% @task_list.errors[:description].each do |msg| %>
+      <div class="invalid-feedback d-block"><%= msg %></div>
+    <% end %>
   </div>
 
   <div class="mb-3">

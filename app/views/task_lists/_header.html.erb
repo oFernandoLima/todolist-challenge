@@ -1,0 +1,86 @@
+<% total        = task_list.total_tasks_count %>
+<% done_count   = task_list.done_tasks_count %>
+<% pending_count = total - done_count %>
+<% completion   = total.positive? ? ((done_count.to_f / total) * 100).round : 0 %>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between align-items-start">
+      <div class="flex-grow-1">
+        <h1 class="h3 d-flex align-items-center gap-2 mb-2">
+          <span class="rounded-circle border" style="width:24px;height:24px;background:<%= task_list.color %>;"></span>
+          <span>📋 <%= task_list.name %></span>
+        </h1>
+
+        <div class="text-muted mb-2 small">
+          <% if task_list.description.present? %>
+            <%= simple_format(task_list.description, {}, sanitize: true) %>
+          <% else %>
+            <em class="text-secondary">Sem descrição.</em>
+          <% end %>
+        </div>
+
+        <p class="text-muted small mb-0">
+          👤 Criada por
+          <strong><%= (task_list.user.respond_to?(:full_name) && task_list.user.full_name.presence) || task_list.user.name || task_list.user.email %></strong>
+          em <%= l(task_list.created_at.to_date) %>
+        </p>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <% if can_edit %>
+          <%= link_to "🗑 Excluir", task_list_path(task_list),
+                method: :delete,
+                data: { confirm: "Tem certeza que deseja excluir esta lista?" },
+                class: "btn btn-sm btn-outline-danger" %>
+          <%= link_to "✏️ Editar", edit_task_list_path(task_list), class: "btn btn-sm btn-warning" %>
+          <%= link_to "👥 Colaboradores", task_list_task_list_collaborators_path(task_list), class: "btn btn-sm btn-purple" if task_list.respond_to?(:collaborators) %>
+          <%= link_to "➕ Nova Tarefa", new_task_list_task_path(task_list), class: "btn btn-sm btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row text-center g-3 mt-4">
+      <div class="col-6 col-md-3">
+        <div class="fw-bold fs-4" style="color:<%= task_list.color %>;"><%= task_list.total_tasks_count %></div>
+        <div class="text-muted small">Total</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="fw-bold fs-4 text-success"><%= task_list.done_tasks_count %></div>
+        <div class="text-muted small">Concluídas</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="fw-bold fs-4 text-warning"><%= task_list.pending_tasks_count %></div>
+        <div class="text-muted small">Pendentes</div>
+      </div>
+      <% if task_list.respond_to?(:collaborators) && task_list.collaborators_count.positive? %>
+        <div class="col-6 col-md-3">
+          <div class="fw-bold fs-4 text-purple"><%= task_list.collaborators_count %></div>
+          <div class="text-muted small">Colaboradores</div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if task_list.total_tasks_count.positive? %>
+      <div class="mt-4">
+        <div class="d-flex justify-content-between small mb-1">
+          <span class="fw-semibold text-muted">Progresso</span>
+          <span class="fw-semibold" style="color:<%= task_list.color %>;"><%= task_list.completion_percentage %>%</span>
+        </div>
+        <div class="progress" style="height:10px;">
+          <div class="progress-bar"
+               role="progressbar"
+               style="width:<%= task_list.completion_percentage %>%;background:<%= task_list.color %>;"
+               aria-valuenow="<%= task_list.completion_percentage %>"
+               aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .text-purple { color:#6f42c1 !important; }
+  .btn-purple { background:#6f42c1; color:#fff; }
+  .btn-purple:hover { background:#5a35a5; color:#fff; }
+</style>

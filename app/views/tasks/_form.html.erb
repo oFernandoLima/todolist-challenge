@@ -10,27 +10,50 @@
 
   <div class="mb-3">
     <%= f.label :title, "Título", class: "form-label" %>
-    <%= f.text_field :title, class: "form-control", required: true %>
+    <%= f.text_field :title,
+          class: "form-control #{'is-invalid' if @task.errors[:title].present?}",
+          required: true %>
+    <% @task.errors[:title].each do |msg| %>
+      <div class="invalid-feedback d-block"><%= msg %></div>
+    <% end %>
   </div>
 
   <div class="mb-3">
     <%= f.label :description, "Descrição", class: "form-label" %>
-    <%= f.text_area :description, rows: 4, class: "form-control", placeholder: "Detalhes da tarefa (opcional)" %>
+    <%= f.text_area :description, rows: 4,
+          class: "form-control #{'is-invalid' if @task.errors[:description].present?}",
+          required: true,
+          placeholder: "Detalhes da tarefa" %>
+    <% @task.errors[:description].each do |msg| %>
+      <div class="invalid-feedback d-block"><%= msg %></div>
+    <% end %>
   </div>
 
   <div class="row g-3">
     <div class="col-md-4">
       <%= f.label :priority, "Prioridade", class: "form-label" %>
-      <%= f.number_field :priority, in: 1..5, step: 1, class: "form-control", placeholder: "1..5" %>
+      <%= f.number_field :priority, in: 1..5, step: 1,
+            class: "form-control #{'is-invalid' if @task.errors[:priority].present?}",
+            required: true %>
+      <% @task.errors[:priority].each do |msg| %>
+        <div class="invalid-feedback d-block"><%= msg %></div>
+      <% end %>
     </div>
     <div class="col-md-4">
       <%= f.label :status, "Status", class: "form-label" %>
-      <%= f.select :status, Task.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-select" %>
+      <%= f.select :status,
+            Task.statuses.keys.map { |s| [s.titleize, s] },
+            {},
+            class: "form-select #{'is-invalid' if @task.errors[:status].present?}",
+            required: true %>
+      <% @task.errors[:status].each do |msg| %>
+        <div class="invalid-feedback d-block"><%= msg %></div>
+      <% end %>
     </div>
   </div>
 
   <div class="d-flex gap-2 mt-3">
-    <%= f.submit(@task.persisted? ? "Update task" : "Create task", class: "btn btn-primary") %>
-    <%= link_to "Cancel", task_list_path(@task_list), class: "btn btn-outline-secondary" %>
+    <%= f.submit(@task.persisted? ? "Atualizar Tarefa" : "Criar Tarefa", class: "btn btn-primary") %>
+    <%= link_to "Cancelar", task_list_path(@task_list), class: "btn btn-outline-secondary" %>
   </div>
 <% end %>
