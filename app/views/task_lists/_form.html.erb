@@ -34,7 +34,7 @@
   </div>
 
   <div class="d-flex gap-2">
-    <%= f.submit (task_list.persisted? ? "Update list" : "Create list"), class: "btn btn-primary" %>
-    <%= link_to "Cancel", (task_list.persisted? ? task_list_path(task_list) : task_lists_path), class: "btn btn-outline-secondary" %>
+    <%= f.submit (task_list.persisted? ? "Atualizar lista" : "Criar lista"), class: "btn btn-primary" %>
+    <%= link_to "Cancelar", (task_list.persisted? ? task_list_path(task_list) : task_lists_path), class: "btn btn-outline-secondary" %>
   </div>
 <% end %>
