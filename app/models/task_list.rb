@@ -7,6 +7,7 @@ class TaskList < ApplicationRecord
 
   validates :name, presence: true
   validates :color, presence: true
+  validates :description, length: { maximum: 10_000 }, allow_blank: true
 
   # Permissões
   def owner?(u) = u && u.id == user_id

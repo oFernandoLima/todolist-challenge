@@ -11,15 +11,20 @@
   <% end %>
 
   <div class="mb-3">
-    <%= f.label :name, "Name", class: "form-label" %>
+    <%= f.label :name, "Nome", class: "form-label" %>
     <%= f.text_field :name, class: "form-control", required: true %>
   </div>
 
   <div class="mb-3">
-    <%= f.label :color, "Color", class: "form-label d-block" %>
+    <%= f.label :description, "Descrição", class: "form-label" %>
+    <%= f.text_area :description, rows: 4, class: "form-control", placeholder: "Opcional" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :color, "Cor", class: "form-label d-block" %>
     <div class="d-flex align-items-center gap-3">
       <%= f.color_field :color, class: "form-control form-control-color", style: "width:3rem; height:3rem; padding:.25rem;" %>
-      <small class="text-muted">Pick a color for this list</small>
+      <small class="text-muted">Escolha uma cor para esta lista</small>
     </div>
   </div>
 
