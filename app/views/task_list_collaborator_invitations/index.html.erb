@@ -1,57 +1,116 @@
 <% content_for :title, "Convites de Colaboração" %>
 
+<% pending  = @invitations.select { |i| i.respond_to?(:pending?)  && i.pending? } %>
+<% accepted = @invitations.select { |i| i.respond_to?(:accepted?) && i.accepted? } %>
+<% declined = @invitations.select { |i| i.respond_to?(:declined?) && i.declined? } rescue [] %>
+
 <div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0">Convites de Colaboração</h1>
-    <%= link_to "Ir para Minhas Listas", task_lists_path, class: "btn btn-outline-secondary btn-sm" %>
+  <!-- Header + Stats -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body d-flex flex-column flex-md-row justify-content-between gap-3">
+      <div>
+        <h1 class="h4 mb-1 d-flex align-items-center gap-2">✉️ Convites de Colaboração</h1>
+        <p class="text-muted small mb-0">
+          Gerencie convites pendentes e acompanhe acessos concedidos.
+        </p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <%= link_to "📋 Minhas Listas", task_lists_path, class: "btn btn-outline-secondary btn-sm d-inline-flex align-items-center" %>
+      </div>
+    </div>
+    <div class="card-body border-top pt-3">
+      <div class="row text-center g-3">
+        <div class="col-6 col-md-3">
+          <div class="fw-bold fs-4 text-info"><%= pending.size %></div>
+          <div class="text-muted small">Pendentes</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="fw-bold fs-4 text-success"><%= accepted.size %></div>
+            <div class="text-muted small">Aceitos</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="fw-bold fs-4 text-secondary"><%= declined.size %></div>
+          <div class="text-muted small">Recusados</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="fw-bold fs-4 text-purple"><%= @invitations.size %></div>
+          <div class="text-muted small">Total</div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Tabela -->
   <div class="card shadow-sm">
     <div class="table-responsive">
       <table class="table align-middle mb-0">
         <thead class="table-light">
           <tr>
             <th>Lista</th>
-            <th>Permissão</th>
-            <th>Convidado por</th>
-            <th>Enviado em</th>
+            <th class="d-none d-sm-table-cell">Permissão</th>
+            <th class="d-none d-md-table-cell">Convidado por</th>
+            <th class="d-none d-lg-table-cell">Enviado em</th>
             <th>Status</th>
             <th class="text-end">Ações</th>
           </tr>
         </thead>
         <tbody>
           <% @invitations.each do |inv| %>
+            <% list_color = inv.task_list.try(:color) || '#6c757d' %>
             <tr>
               <td>
-                <%= link_to inv.task_list.name, task_list_path(inv.task_list), class: "text-decoration-none" %>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="d-inline-block rounded-circle border" style="width:.9rem;height:.9rem;background:<%= list_color %>;"></span>
+                  <%= link_to inv.task_list.name, task_list_path(inv.task_list), class: "text-decoration-none fw-semibold" %>
+                </div>
               </td>
-              <td>
+              <td class="d-none d-sm-table-cell">
                 <span class="badge <%= inv.admin? ? 'text-bg-danger' : inv.editor? ? 'text-bg-warning text-dark' : 'text-bg-secondary' %>">
                   <%= inv.permission_name %>
                 </span>
               </td>
-              <td><%= inv.invited_by.name.presence || inv.invited_by.email %></td>
-              <td><%= l(inv.invited_at, format: :short) rescue inv.invited_at.to_s(:short) %></td>
+              <td class="d-none d-md-table-cell small">
+                <%= (defined?(user_display_name) && user_display_name(inv.invited_by)).presence ||
+                    inv.invited_by.try(:name) || inv.invited_by.try(:email) %>
+              </td>
+              <td class="d-none d-lg-table-cell small text-muted">
+                <%= l(inv.invited_at, format: :short) rescue inv.invited_at&.strftime('%d/%m/%Y %H:%M') %>
+              </td>
               <td>
-                <span class="badge <%= inv.accepted? ? 'text-bg-success' : inv.pending? ? 'text-bg-info' : 'text-bg-secondary' %>">
-                  <%= inv.status_name %>
+                <% status_badge =
+                    if inv.respond_to?(:accepted?) && inv.accepted? then 'text-bg-success'
+                    elsif inv.respond_to?(:pending?)  && inv.pending?  then 'text-bg-info'
+                    elsif inv.respond_to?(:declined?) && inv.declined? then 'text-bg-secondary'
+                    else 'text-bg-light text-dark'
+                    end %>
+                <span class="badge <%= status_badge %>">
+                  <%= inv.respond_to?(:status_name) ? inv.status_name : (inv.status.to_s.humanize) %>
                 </span>
               </td>
               <td class="text-end">
-                <% if inv.pending? %>
+                <% if inv.respond_to?(:pending?) && inv.pending? %>
                   <div class="btn-group btn-group-sm">
-                    <%= button_to "Aceitar", accept_collaboration_invite_path(inv), method: :patch, class: "btn btn-success" %>
-                    <%= button_to "Recusar", decline_collaboration_invite_path(inv), method: :patch, class: "btn btn-outline-secondary" %>
+                    <%= button_to "Aceitar",
+                          accept_collaboration_invite_path(inv),
+                          method: :patch,
+                          class: "btn btn-success d-inline-flex align-items-center" %>
+                    <%= button_to "Recusar",
+                          decline_collaboration_invite_path(inv),
+                          method: :patch,
+                          class: "btn btn-outline-secondary d-inline-flex align-items-center" %>
                   </div>
                 <% else %>
-                  <span class="text-muted small">Nenhuma ação</span>
+                  <span class="text-muted small">—</span>
                 <% end %>
               </td>
             </tr>
           <% end %>
+
           <% if @invitations.blank? %>
             <tr>
-              <td colspan="6" class="text-center text-muted py-4">Você não possui convites.</td>
+              <td colspan="6" class="text-center text-muted py-4">
+                Você não possui convites.
+              </td>
             </tr>
           <% end %>
         </tbody>
@@ -59,3 +118,6 @@
     </div>
   </div>
 </div>
+
+<style>
+  .text-purple { color:#6f42c1
