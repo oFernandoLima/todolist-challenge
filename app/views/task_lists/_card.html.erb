@@ -38,9 +38,10 @@
       <%= link_to "👁 Ver", task_list_path(task_list), class: "btn btn-sm btn-outline-primary" %>
       <% unless collaborated %>
         <%= link_to "✏️ Editar", edit_task_list_path(task_list), class: "btn btn-sm btn-warning text-white" %>
-        <%= button_to "🗑 Excluir", task_list_path(task_list),
+        <%= button_to "🗑 Excluir",
+              task_list_path(task_list),
               method: :delete,
-              form: { data: { turbo_confirm: "Tem certeza?" }, class: "d-inline" },
+              form: { data: { confirm_modal: confirm_message(task_list) }, class: "d-inline" },
               class: "btn btn-sm btn-danger" %>
       <% end %>
     </div>

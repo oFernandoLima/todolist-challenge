@@ -1,0 +1,75 @@
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header py-2 border-0">
+        <h5 class="modal-title fs-6">Confirmação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body pt-0">
+        <p class="mb-0 confirm-message small"></p>
+      </div>
+      <div class="modal-footer border-0 pt-1 pb-3">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" data-confirm-cancel>Cancelar</button>
+        <button type="button" class="btn btn-danger btn-sm" data-confirm-accept>Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function openModal(message, onConfirm){
+    const modalEl = document.getElementById('confirmModal');
+    modalEl.querySelector('.confirm-message').textContent = message || 'Tem certeza?';
+    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const acceptBtn = modalEl.querySelector('[data-confirm-accept]');
+    function handler(){
+      acceptBtn.removeEventListener('click', handler);
+      bsModal.hide();
+      onConfirm();
+    }
+    acceptBtn.addEventListener('click', handler, { once: true });
+    bsModal.show();
+  }
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[data-confirm-modal]');
+    if(!link) return;
+    if(link.dataset.confirmed === 'true') return;
+    e.preventDefault();
+    const msg = link.dataset.confirmModal;
+    openModal(msg, () => {
+      link.dataset.confirmed = 'true';
+      const method = (link.dataset.turboMethod || link.dataset.method || 'get').toLowerCase();
+      if(method === 'get'){
+        window.location = link.href;
+        return;
+      }
+      const form = document.createElement('form');
+      form.method = 'post';
+      form.action = link.href;
+      const token = document.querySelector('meta[name="csrf-token"]')?.content;
+      if(token){
+        form.innerHTML += `<input type="hidden" name="authenticity_token" value="${token}">`;
+      }
+      if(method !== 'post'){
+        form.innerHTML += `<input type="hidden" name="_method" value="${method}">`;
+      }
+      document.body.appendChild(form);
+      form.submit();
+    });
+  });
+
+  document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if(!form.matches('form[data-confirm-modal]')) return;
+    if(form.dataset.confirmed === 'true') return;
+    e.preventDefault();
+    const msg = form.dataset.confirmModal;
+    openModal(msg, () => {
+      form.dataset.confirmed = 'true';
+      form.requestSubmit();
+    });
+  });
+})();
+</script>

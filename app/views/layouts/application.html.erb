@@ -25,9 +25,8 @@
 
   <body class="bg-light d-flex flex-column min-vh-100">
     <%= render "shared/navbar", pending_invites_count: @pending_invites_count %>
-
     <%= render "shared/flash_toasts" %>
-
+    <%= render "shared/confirm_modal" %>
     <main class="flex-grow-1 <%= content_for?(:center_screen) ? 'd-flex align-items-center justify-content-center' : 'py-4' %>">
       <%= yield %>
     </main>

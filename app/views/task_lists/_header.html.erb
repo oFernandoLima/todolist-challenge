@@ -29,9 +29,10 @@
 
       <div class="d-flex flex-wrap gap-2">
         <% if can_edit %>
-          <%= link_to "🗑 Excluir", task_list_path(task_list),
+          <%= button_to "🗑 Excluir",
+                task_list_path(task_list),
                 method: :delete,
-                data: { confirm: "Tem certeza que deseja excluir esta lista?" },
+                form: { data: { confirm_modal: confirm_message(task_list) }, class: "d-inline" },
                 class: "btn btn-sm btn-outline-danger" %>
           <%= link_to "✏️ Editar", edit_task_list_path(task_list), class: "btn btn-sm btn-warning" %>
           <%= link_to "👥 Colaboradores", task_list_task_list_collaborators_path(task_list), class: "btn btn-sm btn-purple" if task_list.respond_to?(:collaborators) %>
