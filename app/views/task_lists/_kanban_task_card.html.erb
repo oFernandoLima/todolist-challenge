@@ -62,14 +62,14 @@
     <div class="d-flex align-items-center gap-2 ms-2">
       <!-- Ver -->
       <%= link_to task_list_task_path(task_list, task),
-          class: "btn btn-sm btn-light border-0 px-2 py-1 text-primary hover-icon",
+          class: "btn btn-sm btn-light border-0 px-2 py-1 text-primary hover-icon btn-emoji",
           title: "Ver tarefa", data: { turbo_frame: "_top" } do %>
         👁
       <% end %>
 
       <% if can_edit %>
         <%= link_to edit_task_list_task_path(task_list, task),
-            class: "btn btn-sm btn-light border-0 px-2 py-1 text-secondary hover-icon",
+            class: "btn btn-sm btn-light border-0 px-2 py-1 text-secondary hover-icon btn-emoji",
             title: "Editar tarefa", data: { turbo_frame: "_top" } do %>
           ✏️
         <% end %>

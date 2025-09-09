@@ -35,9 +35,9 @@
 
   <div class="card-footer bg-white border-0 pt-0 pb-3">
     <div class="d-flex justify-content-end flex-wrap gap-2">
-      <%= link_to "👁 Ver", task_list_path(task_list), class: "btn btn-sm btn-outline-primary" %>
+      <%= link_to "👁 Ver", task_list_path(task_list), class: "btn btn-sm btn-outline-primary btn-emoji" %>
       <% unless collaborated %>
-        <%= link_to "✏️ Editar", edit_task_list_path(task_list), class: "btn btn-sm btn-warning text-white" %>
+        <%= link_to "✏️ Editar", edit_task_list_path(task_list), class: "btn btn-sm btn-warning text-white btn-emoji" %>
         <%= button_to "🗑 Excluir",
               task_list_path(task_list),
               method: :delete,
