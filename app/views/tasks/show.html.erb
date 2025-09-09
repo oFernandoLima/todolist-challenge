@@ -46,9 +46,9 @@
 
         <!-- Ações (padrões alinhados com outras telas) -->
         <div class="d-flex flex-wrap gap-2">
-          <%= link_to "↩️ Voltar", task_list_path(@task_list), class: "btn btn-outline-secondary d-inline-flex align-items-center" %>
+          <%= link_to "↩️ Voltar", task_list_path(@task_list), class: "btn btn-outline-secondary d-inline-flex align-items-center btn-emoji" %>
           <% if can_edit %>
-            <%= link_to "✏️ Editar", edit_task_list_task_path(@task_list, @task), class: "btn btn-warning text-dark d-inline-flex align-items-center" %>
+            <%= link_to "✏️ Editar", edit_task_list_task_path(@task_list, @task), class: "btn btn-warning text-dark d-inline-flex align-items-center btn-emoji" %>
           <% end %>
           <% if can_delete %>
             <%= button_to "🗑 Excluir",
