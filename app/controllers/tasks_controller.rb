@@ -2,7 +2,7 @@ class TasksController < ApplicationController
   before_action :authenticate_user!
   before_action :set_task_list
   before_action :set_task, only: %i[show edit update destroy]
-  before_action :authorize_view!, only: %i[index show]
+  before_action :authorize_view!
   before_action :authorize_edit!, only: %i[new create edit update destroy]
 
   def index
@@ -59,11 +59,15 @@ class TasksController < ApplicationController
   end
 
   def authorize_view!
-    head :forbidden unless @task_list.can_view?(current_user)
+    unless @task_list.can_view?(current_user)
+      redirect_to task_lists_path, alert: "Acesso não autorizado."
+    end
   end
 
   def authorize_edit!
-    head :forbidden unless @task_list.can_edit?(current_user)
+    unless @task_list.can_edit_tasks?(current_user)
+      redirect_to task_list_task_path(@task_list, @task), alert: "Permissão insuficiente."
+    end
   end
 
   def task_params

@@ -10,35 +10,54 @@ class TaskList < ApplicationRecord
          through: :accepted_task_list_collaborators,
          source: :user
 
-  validates :name, presence: true
-  validates :color, presence: true
-  validates :description, presence: true, length: { maximum: 10_000 }
-
-  # Permissões
-  def owner?(u) = u && u.id == user_id
-
-  def collaborator_record_for(u)
-    return nil unless u
-    task_list_collaborators.accepted.find_by(user_id: u.id)
+  # Retorna o registro de colaboração aceito para o user
+  def collaborator_record_for(user)
+    return nil unless user
+    accepted_task_list_collaborators.find { |c| c.user_id == user.id }
   end
 
-  def permission_for(u)
-    return "admin" if owner?(u) # dono é admin por padrão
-    collaborator_record_for(u)&.permission_level
+  # String de permissão: owner | viewer | editor | admin | nil
+  def permission_for(user)
+    return nil unless user
+    return "owner" if owner?(user)
+    collaborator_record_for(user)&.permission_level
   end
 
-  def can_view?(u)
-    owner?(u) || collaborator_record_for(u).present?
+  def owner?(user)
+    user && user.id == user_id
   end
 
-  def can_edit?(u)
-    return true if owner?(u)
-    collaborator_record_for(u)&.can_edit? || false
+  def can_view?(user)
+    return false unless user
+    owner?(user) || collaborator_record_for(user).present?
   end
 
-  def can_manage_collaborators?(u)
-    return true if owner?(u)
-    collaborator_record_for(u)&.can_manage_collaborators? || false
+  # Editar tarefas (owner, editor, admin)
+  def can_edit_tasks?(user)
+    return false unless user
+    return true if owner?(user)
+    collab = collaborator_record_for(user)
+    collab&.can_edit_tasks? || false
+  end
+
+  # Editar lista (mesma regra de tarefas por enquanto)
+  def can_edit?(user)
+    can_edit_tasks?(user)
+  end
+
+  # Excluir tarefas (owner ou admin)
+  def can_delete_tasks?(user)
+    return false unless user
+    return true if owner?(user)
+    collab = collaborator_record_for(user)
+    collab&.admin? || false
+  end
+
+  # Gerenciar colaboradores (owner ou admin)
+  def can_manage_collaborators?(user)
+    return false unless user
+    return true if owner?(user)
+    collaborator_record_for(user)&.can_manage_collaborators? || false
   end
 
   def total_tasks_count

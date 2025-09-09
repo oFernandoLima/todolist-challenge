@@ -9,12 +9,14 @@ class TaskListsController < ApplicationController
   end
 
   def show
-    @todo_tasks  = @task_list.tasks.where(status: :todo).order(priority: :desc, created_at: :desc)
-    @doing_tasks = @task_list.tasks.where(status: :doing).order(priority: :desc, created_at: :desc)
+    @task_list = TaskList.find(params[:id])
+    authorize_access!
+
+    @tasks       = @task_list.tasks.order(priority: :desc, created_at: :desc)
     @done_tasks  = @task_list.tasks.where(status: :done).order(priority: :desc, created_at: :desc)
 
-    @permission = @task_list.permission_for(current_user)
-    @can_edit   = @task_list.can_edit?(current_user)
+    @permission  = @task_list.permission_for(current_user)
+    @can_edit    = @task_list.can_edit?(current_user)
   end
 
   def new
@@ -77,8 +79,8 @@ class TaskListsController < ApplicationController
   end
 
   def authorize_access!
-    return if @task_list.user_id == current_user.id
-    return if @task_list.task_list_collaborators.accepted.exists?(user_id: current_user.id)
-    redirect_to task_lists_path, alert: "Acesso não autorizado."
+    unless @task_list.can_view?(current_user)
+      redirect_to task_lists_path, alert: "Acesso não autorizado."
+    end
   end
 end
