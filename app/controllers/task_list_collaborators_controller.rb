@@ -6,9 +6,13 @@ class TaskListCollaboratorsController < ApplicationController
   before_action :require_manage_permission!, only: %i[new create update destroy]
 
   def index
-    @collaborators = @task_list.task_list_collaborators
-                              .includes(:user, :invited_by)
-                              .order(created_at: :desc)
+    # @task_list já definido em before_action :set_task_list
+    @accepted_collaborators = @task_list.task_list_collaborators.accepted.includes(:user, :invited_by)
+    @pending_collaborators  = @task_list.task_list_collaborators.pending.includes(:user, :invited_by)
+    @collaborators = @accepted_collaborators + @pending_collaborators
+
+    existing_ids = (@collaborators.map(&:user_id) << @task_list.user_id).uniq
+    @users_to_invite = User.where.not(id: existing_ids)
   end
 
   def new
