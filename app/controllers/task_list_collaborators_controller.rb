@@ -62,15 +62,15 @@ class TaskListCollaboratorsController < ApplicationController
   end
 
   def accept
-    return head :forbidden unless @task_list_collaborator.user_id == current_user.id
-    @task_list_collaborator.accept!
-    redirect_to task_list_task_list_collaborators_path(@task_list), notice: "Convite aceito."
+    return redirect_to task_lists_path, alert: "Convite inválido." unless @task_list_collaborator.pending? && @task_list_collaborator.user_id == current_user.id
+    @task_list_collaborator.accepted!
+    redirect_to task_list_path(@task_list), notice: "Colaboração aceita."
   end
 
   def decline
-    return head :forbidden unless @task_list_collaborator.user_id == current_user.id
-    @task_list_collaborator.decline!
-    redirect_to task_list_task_list_collaborators_path(@task_list), notice: "Convite recusado."
+    return redirect_to task_lists_path, alert: "Convite inválido." unless @task_list_collaborator.pending? && @task_list_collaborator.user_id == current_user.id
+    @task_list_collaborator.declined!
+    redirect_to task_list_collaborator_invitations_path, notice: "Convite recusado."
   end
 
   private

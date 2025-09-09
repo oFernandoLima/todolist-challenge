@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :set_nav_notifications
+  before_action :set_pending_invites_count
 
   protected
 
@@ -22,13 +22,10 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def set_nav_notifications
+  def set_pending_invites_count
     return unless user_signed_in?
-    @pending_invites_count =
-      if current_user.respond_to?(:task_list_collaborations)
-        current_user.task_list_collaborations.pending.count
-      else
-        0
-      end
+    if current_user.respond_to?(:pending_collaboration_invites)
+      @pending_invites_count = current_user.pending_collaboration_invites.count
+    end
   end
 end

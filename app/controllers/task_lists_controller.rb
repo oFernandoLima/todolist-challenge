@@ -4,7 +4,8 @@ class TaskListsController < ApplicationController
 
   def index
     @task_lists = current_user.task_lists.includes(:tasks)
-    @collaborated_task_lists = current_user.collaborated_task_lists.includes(:tasks)
+    @collaborated_task_lists = current_user.collaborated_task_lists.includes(:tasks).distinct
+    @pending_invites_count = current_user.pending_collaboration_invites.count
   end
 
   def show
@@ -73,5 +74,11 @@ class TaskListsController < ApplicationController
 
   def task_list_params
     params.require(:task_list).permit(:name, :description, :color)
+  end
+
+  def authorize_access!
+    return if @task_list.user_id == current_user.id
+    return if @task_list.task_list_collaborators.accepted.exists?(user_id: current_user.id)
+    redirect_to task_lists_path, alert: "Acesso não autorizado."
   end
 end

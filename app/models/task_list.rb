@@ -3,7 +3,12 @@ class TaskList < ApplicationRecord
   has_many :tasks, dependent: :destroy
 
   has_many :task_list_collaborators, dependent: :destroy
-  has_many :collaborators, through: :task_list_collaborators, source: :user
+  has_many :accepted_task_list_collaborators,
+         -> { accepted },
+         class_name: "TaskListCollaborator"
+  has_many :collaborators,
+         through: :accepted_task_list_collaborators,
+         source: :user
 
   validates :name, presence: true
   validates :color, presence: true
