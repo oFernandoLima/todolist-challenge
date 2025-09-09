@@ -1,24 +1,45 @@
-# README
+# ToDoList Challenge
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Aplicação Rails para gestão de listas de tarefas colaborativas com controle de permissões.
 
-Things you may want to cover:
+## Stack
+- Ruby 3.4.5
+- Rails 8.0.2.1
+- PostgreSQL 
+- Bootstrap 5
+- Turbo / Hotwire
 
-* Ruby version
+## Funcionalidades
+- CRUD de Listas de Tarefas
+- Tarefas com: título, descrição, prioridade, status (todo / doing / done)
+- Kanban simples (arrastar e soltar altera status via AJAX)
+- Sistema de colaboração por convites
+- Permissões por colaborador (viewer, editor, admin)
 
-* System dependencies
+## Modelos Principais
+TaskList
+Task
+TaskListCollaborator
+User
 
-* Configuration
+## Permissões (Resumo)
+| Papel        | Ver | Editar Tarefas | Excluir Tarefas | Gerir Colaboradores |
+|--------------|-----|----------------|-----------------|---------------------|
+| Proprietário | ✔   | ✔              | ✔               | ✔                   |
+| Admin        | ✔   | ✔              | ✔               | ✔                   |
+| Editor       | ✔   | ✔              | ✔               | ✖                   |
+| Viewer       | ✔   | ✖              | ✖               | ✖                   |
 
-* Database creation
+## Instalação
+```bash
+git clone https://github.com/oFernandoLima/todolist-challenge.git
+cd todolist-challenge
+bundle install
+bin/rails db:setup
+bin/rails server
+```
 
-* Database initialization
+Acesse: http://localhost:3000
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Variáveis de Ambiente (exemplos)
+- TODOLIST_CHALLENGE_DATABASE_PASSWORD=password (desenvolvimento)
