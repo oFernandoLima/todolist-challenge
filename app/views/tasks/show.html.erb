@@ -3,70 +3,96 @@
 <div class="container py-4" style="max-width: 900px;">
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
+    <ol class="breadcrumb mb-0 small">
       <li class="breadcrumb-item"><%= link_to "Listas", task_lists_path %></li>
-      <li class="breadcrumb-item">
-        <%= link_to @task_list.name, task_list_path(@task_list), style: "color: #{@task_list.color}" %>
-      </li>
+      <li class="breadcrumb-item"><%= link_to @task_list.name, task_list_path(@task_list) %></li>
       <li class="breadcrumb-item active" aria-current="page"><%= @task.title %></li>
     </ol>
   </nav>
 
   <!-- Header -->
-  <div class="card shadow-sm mb-3" style="border-left: 0.25rem solid <%= @task_list.color %>;">
+  <div class="card shadow-sm mb-4 border-0" style="border-left:.4rem solid <%= @task_list.color %>;">
     <div class="card-body">
       <% icon = @task.done? ? "✅" : (@task.doing? ? "🔄" : "⏳") %>
-      <div class="d-flex justify-content-between align-items-start">
-        <h1 class="h4 mb-2 <%= 'text-muted text-decoration-line-through' if @task.done? %>">
-          <%= icon %> <%= @task.title %>
-        </h1>
-        <div class="d-flex gap-2 flex-wrap">
-          <span class="badge rounded-pill text-bg-secondary">📋 <%= @task_list.name %></span>
-          <span class="badge
-            <%= @task.done? ? 'text-bg-success' :
-                 @task.doing? ? 'text-bg-warning text-dark' :
-                 'text-bg-light text-dark' %>">
-            <%= I18n.t("activerecord.enums.task.status.#{@task.status}", default: @task.status.humanize) %>
-          </span>
-          <span class="badge text-bg-dark">
-            Prioridade: <%= @task.priority.presence || '-' %>
-          </span>
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <h1 class="h4 mb-2 d-flex align-items-center gap-2 <%= 'text-muted text-decoration-line-through' if @task.done? %>">
+            <span><%= icon %></span>
+            <span class="lh-sm"><%= @task.title %></span>
+          </h1>
+
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge rounded-pill text-bg-secondary">📋 <%= @task_list.name %></span>
+            <% status_variant =
+                if @task.done? then 'success'
+                elsif @task.doing? then 'warning text-dark'
+                else 'secondary'
+                end %>
+            <span class="badge rounded-pill text-bg-<%= status_variant %>">
+              <%= I18n.t("activerecord.enums.task.status.#{@task.status}", default: @task.status.humanize) %>
+            </span>
+            <span class="badge rounded-pill text-bg-dark">
+              Prioridade: <%= @task.priority.presence || '-' %>
+            </span>
+            <% if @task.respond_to?(:due_date) && @task.due_date.present? %>
+              <span class="badge rounded-pill <%= (@task.respond_to?(:overdue?) && @task.overdue?) ? 'text-bg-danger' : 'text-bg-light text-dark' %>">
+                📅 <%= l(@task.due_date, format: :short) rescue @task.due_date.strftime('%d/%m/%Y') %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Ações (padrões alinhados com outras telas) -->
+        <div class="d-flex flex-wrap gap-2">
+          <%= link_to "↩️ Voltar", task_list_path(@task_list), class: "btn btn-outline-secondary" %>
+          <%= link_to "✏️ Editar", edit_task_list_task_path(@task_list, @task), class: "btn btn-warning text-dark" %>
+          <%= button_to "🗑 Excluir",
+                task_list_task_path(@task_list, @task),
+                method: :delete,
+                form: { data: { confirm_modal: confirm_message(@task) }, class: "d-inline" },
+                class: "btn btn-danger" %>
         </div>
       </div>
 
-      <dl class="row mb-0 mt-3 small">
-        <dt class="col-sm-3">Criada em</dt>
-        <dd class="col-sm-9"><%= l(@task.created_at, format: :short) %></dd>
-
-        <dt class="col-sm-3">Atualizada em</dt>
-        <dd class="col-sm-9"><%= l(@task.updated_at, format: :short) %></dd>
-
-        <% if @task.respond_to?(:description) && @task.description.present? %>
-          <dt class="col-sm-3">Descrição</dt>
-          <dd class="col-sm-9"><%= simple_format(@task.description) %></dd>
-        <% end %>
-      </dl>
-    </div>
-  </div>
-
-  <!-- Ações -->
-  <div class="card shadow-sm">
-    <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
-      <%= link_to "↩️ Voltar para Lista", task_list_path(@task_list), class: "btn btn-secondary" %>
-      <%= link_to "✏️ Editar Tarefa", edit_task_list_task_path(@task_list, @task), class: "btn btn-primary" %>
-
-      <!-- Toggle status (done <-> todo) -->
-      <%= form_with model: [@task_list, @task], method: :patch, local: true, class: "d-inline" do |form| %>
-        <%= form.hidden_field :status, value: (@task.done? ? 'todo' : 'done') %>
-        <%= form.submit (@task.done? ? "⏳ Marcar como A Fazer" : "✅ Marcar como Concluída"),
-              class: (@task.done? ? "btn btn-warning text-dark" : "btn btn-success") %>
+      <!-- Descrição -->
+      <% if @task.description.present? %>
+        <hr class="my-3">
+        <h2 class="h6 text-uppercase text-muted mb-2">Descrição</h2>
+        <div class="bg-light rounded p-3 small">
+          <%= simple_format(@task.description) %>
+        </div>
       <% end %>
 
-      <%= button_to "🗑️ Excluir Tarefa",
-            task_list_task_path(@task_list, @task),
-            method: :delete,
-            form: { data: { confirm_modal: confirm_message(@task) }, class: "d-inline" },
-            class: "btn btn-danger" %>
+      <!-- Detalhes -->
+      <hr class="my-4">
+      <div class="row g-3 small">
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="text-muted text-uppercase fw-semibold small mb-1">Criada em</div>
+          <div><%= l(@task.created_at, format: :short) %></div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="text-muted text-uppercase fw-semibold small mb-1">Atualizada em</div>
+          <div><%= l(@task.updated_at, format: :short) %></div>
+        </div>
+        <% if @task.respond_to?(:user) && @task.user.present? %>
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="text-muted text-uppercase fw-semibold small mb-1">Criada por</div>
+            <div><%= @task.user.try(:full_name) || @task.user.try(:name) || @task.user.email %></div>
+          </div>
+        <% end %>
+        <% if @task.respond_to?(:due_date) && @task.due_date.present? %>
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="text-muted text-uppercase fw-semibold small mb-1">Vencimento</div>
+            <div class="<%= (@task.respond_to?(:overdue?) && @task.overdue?) ? 'text-danger fw-semibold' : '' %>">
+              <%= @task.due_date.strftime('%d/%m/%Y %H:%M') %>
+              <% if @task.respond_to?(:overdue?) && @task.overdue? %>
+                <div class="small">⚠️ Atrasada</div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
     </div>
   </div>
 </div>
