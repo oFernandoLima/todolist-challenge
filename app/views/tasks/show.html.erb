@@ -5,7 +5,9 @@
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><%= link_to "Listas", task_lists_path %></li>
-      <li class="breadcrumb-item"><%= link_to @task_list.name, task_list_path(@task_list), style: "color: #{@task_list.color}" %></li>
+      <li class="breadcrumb-item">
+        <%= link_to @task_list.name, task_list_path(@task_list), style: "color: #{@task_list.color}" %>
+      </li>
       <li class="breadcrumb-item active" aria-current="page"><%= @task.title %></li>
     </ol>
   </nav>
@@ -13,28 +15,36 @@
   <!-- Header -->
   <div class="card shadow-sm mb-3" style="border-left: 0.25rem solid <%= @task_list.color %>;">
     <div class="card-body">
+      <% icon = @task.done? ? "✅" : (@task.doing? ? "🔄" : "⏳") %>
       <div class="d-flex justify-content-between align-items-start">
-        <h1 class="h4 mb-2 <%= 'text-muted text-decoration-line-through' if @task.completed %>">
-          <%= @task.completed ? '✅' : '⏳' %> <%= @task.title %>
+        <h1 class="h4 mb-2 <%= 'text-muted text-decoration-line-through' if @task.done? %>">
+          <%= icon %> <%= @task.title %>
         </h1>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
           <span class="badge rounded-pill text-bg-secondary">📋 <%= @task_list.name %></span>
-          <span class="badge <%= @task.done? ? 'text-bg-success' : @task.doing? ? 'text-bg-warning text-dark' : 'text-bg-light text-dark' %>"><%= @task.status %></span>
-          <span class="badge <%= @task.completed ? 'text-bg-success' : 'text-bg-warning text-dark' %>">
-            <%= @task.completed ? 'Concluída' : 'Pendente' %>
+          <span class="badge
+            <%= @task.done? ? 'text-bg-success' :
+                 @task.doing? ? 'text-bg-warning text-dark' :
+                 'text-bg-light text-dark' %>">
+            <%= I18n.t("activerecord.enums.task.status.#{@task.status}", default: @task.status.humanize) %>
+          </span>
+          <span class="badge text-bg-dark">
+            Prioridade: <%= @task.priority.presence || '-' %>
           </span>
         </div>
       </div>
 
-      <dl class="row mb-0 mt-2">
-        <dt class="col-sm-3">Priority</dt>
-        <dd class="col-sm-9"><span class="badge text-bg-dark"><%= @task.priority.presence || '-' %></span></dd>
+      <dl class="row mb-0 mt-3 small">
+        <dt class="col-sm-3">Criada em</dt>
+        <dd class="col-sm-9"><%= l(@task.created_at, format: :short) %></dd>
 
-        <dt class="col-sm-3">Created at</dt>
-        <dd class="col-sm-9"><%= l(@task.created_at, format: :short) rescue @task.created_at.to_s(:short) %></dd>
+        <dt class="col-sm-3">Atualizada em</dt>
+        <dd class="col-sm-9"><%= l(@task.updated_at, format: :short) %></dd>
 
-        <dt class="col-sm-3">Updated at</dt>
-        <dd class="col-sm-9"><%= l(@task.updated_at, format: :short) rescue @task.updated_at.to_s(:short) %></dd>
+        <% if @task.respond_to?(:description) && @task.description.present? %>
+          <dt class="col-sm-3">Descrição</dt>
+          <dd class="col-sm-9"><%= simple_format(@task.description) %></dd>
+        <% end %>
       </dl>
     </div>
   </div>
@@ -45,16 +55,17 @@
       <%= link_to "↩️ Voltar para Lista", task_list_path(@task_list), class: "btn btn-secondary" %>
       <%= link_to "✏️ Editar Tarefa", edit_task_list_task_path(@task_list, @task), class: "btn btn-primary" %>
 
-      <%# Toggle completed %>
-      <%= form_with model: [@task_list, @task], method: :patch, local: true do |form| %>
-        <%= form.hidden_field :completed, value: (!@task.completed).to_s %>
-        <%= form.submit (@task.completed ? "⏳ Marcar como Pendente" : "✅ Marcar como Concluída"),
-              class: (@task.completed ? "btn btn-warning text-dark" : "btn btn-success") %>
+      <!-- Toggle status (done <-> todo) -->
+      <%= form_with model: [@task_list, @task], method: :patch, local: true, class: "d-inline" do |form| %>
+        <%= form.hidden_field :status, value: (@task.done? ? 'todo' : 'done') %>
+        <%= form.submit (@task.done? ? "⏳ Marcar como A Fazer" : "✅ Marcar como Concluída"),
+              class: (@task.done? ? "btn btn-warning text-dark" : "btn btn-success") %>
       <% end %>
 
-      <%= button_to "🗑️ Excluir Tarefa", task_list_task_path(@task_list, @task),
+      <%= button_to "🗑️ Excluir Tarefa",
+            task_list_task_path(@task_list, @task),
             method: :delete,
-            form: { data: { turbo_confirm: "Tem certeza que deseja excluir esta tarefa?" }, class: "d-inline" },
+            form: { data: { confirm_modal: confirm_message(@task) }, class: "d-inline" },
             class: "btn btn-danger" %>
     </div>
   </div>

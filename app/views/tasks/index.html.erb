@@ -32,21 +32,33 @@
                 <% grouped[key].each do |task| %>
                   <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                     <div>
-                      <div class="fw-semibold <%= 'text-decoration-line-through text-muted' if task.completed %>">
-                        <%= link_to task.title, [@task_list, task], class: "text-decoration-none #{'text-muted' if task.completed}" %>
+                      <div class="fw-semibold <%= 'text-decoration-line-through text-muted' if task.done? %>">
+                        <%= link_to task.title,
+                                    [@task_list, task],
+                                    class: "text-decoration-none #{'text-muted' if task.done?}",
+                                    title: task.title %>
                       </div>
                       <div class="small text-muted">
-                        Priority: <span class="badge rounded-pill text-bg-light"><%= task.priority.presence || '-' %></span>
-                        <span class="ms-2 badge <%= task.completed ? 'text-bg-success' : 'text-bg-warning text-dark' %>">
-                          <%= task.completed ? 'Concluída' : 'Pendente' %>
+                        Prioridade:
+                        <span class="badge rounded-pill text-bg-light">
+                          <%= task.priority.presence || '-' %>
+                        </span>
+                        <span class="ms-2 badge <%= task.done? ? 'text-bg-success' : 'text-bg-warning text-dark' %>">
+                          <%= task.done? ? 'Concluída' : 'Pendente' %>
                         </span>
                       </div>
                     </div>
                     <div class="btn-group btn-group-sm">
-                      <%= link_to "Edit", edit_task_list_task_path(@task_list, task), class: "btn btn-outline-primary" %>
-                      <%= button_to "Del", task_list_task_path(@task_list, task), method: :delete,
-                            form: { data: { turbo_confirm: "Excluir esta tarefa?" }, class: "d-inline" },
-                            class: "btn btn-outline-danger" %>
+                      <%= link_to "Editar",
+                                  edit_task_list_task_path(@task_list, task),
+                                  class: "btn btn-outline-primary",
+                                  title: "Editar Tarefa" %>
+                      <%= button_to "Excluir",
+                                    task_list_task_path(@task_list, task),
+                                    method: :delete,
+                                    form: { data: { confirm_modal: confirm_message(task) }, class: "d-inline" },
+                                    class: "btn btn-outline-danger",
+                                    title: "Excluir Tarefa" %>
                     </div>
                   </div>
                 <% end %>
